@@ -80,6 +80,10 @@ function createElectronFixture(savedExtras = {}) {
       calls.push(['alwaysOnTop', value, level]);
     }
 
+    setTitle(value) {
+      calls.push(['title', value]);
+    }
+
     showInactive() {
       this.visible = true;
       this.emit('show');
@@ -162,6 +166,12 @@ test('persists camera overlay position and size after native move and resize eve
 
     overlay.configure({ cameraId: 'camera:front' });
     const window = fixture.windows[0];
+    assert.equal(window.options.title, 'Beam Camera Overlay');
+    window.contentListeners.get('did-finish-load')();
+    assert.deepEqual(
+      fixture.calls.find((call) => call[0] === 'title'),
+      ['title', 'Beam Camera Overlay'],
+    );
     window.setBounds({ x: 321, y: 222, width: 500, height: 300 });
     window.emit('move');
     window.emit('resize');
@@ -201,6 +211,7 @@ test('restores a saved camera overlay placement when creating the native window'
     assert.equal(fixture.windows[0].options.x, 321);
     assert.equal(fixture.windows[0].options.y, 222);
     assert.equal(fixture.windows[0].options.resizable, true);
+    assert.equal(fixture.windows[0].options.title, 'Beam Camera Overlay');
     assert.equal(fixture.windows[0].options.transparent, true);
     assert.equal(fixture.windows[0].options.hasShadow, false);
     overlay.destroy();

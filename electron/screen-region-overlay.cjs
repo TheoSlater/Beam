@@ -38,6 +38,7 @@ function createScreenRegionOverlayWindow({ applicationRoot, isPackaged, canAccep
       skipTaskbar: true,
       show: false,
       alwaysOnTop: true,
+      title: 'Beam Screen Region',
       webPreferences: {
         preload: path.join(applicationRoot, 'electron/preload.cjs'),
         nodeIntegration: false,
@@ -47,6 +48,7 @@ function createScreenRegionOverlayWindow({ applicationRoot, isPackaged, canAccep
     });
     window.setContentProtection(true);
     window.once('ready-to-show', () => {
+      window?.setTitle('Beam Screen Region');
       ready = true;
       send(current);
     });

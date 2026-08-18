@@ -101,6 +101,7 @@ function createTeleprompterWindow({ applicationRoot, isPackaged, preferencesStor
       transparent: false,
       backgroundColor: '#f7f5f0',
       alwaysOnTop: true,
+      title: 'Beam Teleprompter',
       skipTaskbar: false,
       resizable: true,
       movable: true,
@@ -131,6 +132,7 @@ function createTeleprompterWindow({ applicationRoot, isPackaged, preferencesStor
       notifyVisibility();
     });
     window.webContents.once('did-finish-load', () => {
+      window?.setTitle('Beam Teleprompter');
       ready = true;
       sendSession();
       if (requestedVisible && window && !window.isDestroyed()) {

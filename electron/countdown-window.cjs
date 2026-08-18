@@ -25,6 +25,7 @@ function createCountdownWindow({ applicationRoot, isPackaged, canAcceptWork = ()
         frame: false,
         transparent: true,
         alwaysOnTop: true,
+        title: 'Beam Countdown',
         skipTaskbar: true,
         resizable: false,
         focusable: false,
@@ -44,6 +45,7 @@ function createCountdownWindow({ applicationRoot, isPackaged, canAcceptWork = ()
       });
       window.webContents.once('did-finish-load', () => {
         ready = true;
+        window?.setTitle('Beam Countdown');
         if (seconds === null) return;
         window?.webContents.send('countdown:state', seconds);
         position();

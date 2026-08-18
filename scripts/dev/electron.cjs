@@ -22,9 +22,10 @@ function missingFiles(files, existsSync = fs.existsSync) {
 }
 
 function parseDevelopmentArguments(args = []) {
-  const unsupported = args.filter((argument) => argument !== '--force-no-rust');
+  const electronArgs = args.filter((argument) => argument === '--ozone-platform=x11');
+  const unsupported = args.filter((argument) => argument !== '--force-no-rust' && argument !== '--ozone-platform=x11');
   if (unsupported.length > 0) throw new Error(`Unknown electron:dev option: ${unsupported[0]}`);
-  return { forceNoRust: args.includes('--force-no-rust') };
+  return { forceNoRust: args.includes('--force-no-rust'), electronArgs };
 }
 
 async function resolveDevelopmentEngine({
@@ -63,11 +64,14 @@ async function resolveDevelopmentEngine({
   return required[0].destination;
 }
 
-async function startElectron(executable, { root = applicationRoot, spawnImpl = spawn, env = process.env } = {}) {
+async function startElectron(
+  executable,
+  { root = applicationRoot, spawnImpl = spawn, env = process.env, electronArgs = [] } = {},
+) {
   const electronCli = require.resolve('electron/cli.js');
   await runCommand(
     process.execPath,
-    [electronCli, '.'],
+    [electronCli, ...electronArgs, '.'],
     { cwd: root, env: { ...env, BEAM_CAPTURE_ENGINE: executable } },
     spawnImpl,
   );
@@ -75,13 +79,13 @@ async function startElectron(executable, { root = applicationRoot, spawnImpl = s
 
 async function main() {
   const { version } = require('../../package.json');
-  const { forceNoRust } = parseDevelopmentArguments(process.argv.slice(2));
+  const { forceNoRust, electronArgs } = parseDevelopmentArguments(process.argv.slice(2));
   const executable = await resolveDevelopmentEngine({
     version,
     ...(forceNoRust ? { hasCargo: () => false } : {}),
   });
   console.log(`[electron:dev] Using ${executable}`);
-  await startElectron(executable);
+  await startElectron(executable, { electronArgs });
 }
 
 if (require.main === module) {

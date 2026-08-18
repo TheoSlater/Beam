@@ -91,6 +91,8 @@ Beam is available for Windows, macOS, and Linux.
 - On X11, overlay positions and sizes can be saved and restored.
 - On native Wayland, overlay sizes can be saved, but positions cannot. Wayland prevents applications from reading global window coordinates, so Electron reports `x: 0, y: 0` and Beam cannot restore the camera overlay or teleprompter position.
 - Beam does not force XWayland as a workaround because it can be incompatible with some GPU and X11 configurations.
+- For experimental development testing, `npm run electron:dev:xwayland` launches Electron with `--ozone-platform=x11`; the normal `npm run electron:dev` path remains native Wayland.
+- On native Wayland, use the compositor's window-menu “Always on Top” action on `Beam Overlay`, `Beam Camera Overlay`, or `Beam Teleprompter`; these stable titles can also be used in compositor-specific window rules.
 
 </details>
 

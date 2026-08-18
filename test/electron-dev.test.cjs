@@ -11,6 +11,7 @@ const {
   cargoBuildArguments,
   parseDevelopmentArguments,
   resolveDevelopmentEngine,
+  startElectron,
 } = require('../scripts/dev/electron.cjs');
 const { requiredNativeFiles } = require('../scripts/native/download.cjs');
 
@@ -74,13 +75,42 @@ test('build arguments compile the engine and the Linux helper, with release and 
 });
 
 test('development arguments enable the forced no-Rust path only when requested', () => {
-  assert.deepEqual(parseDevelopmentArguments(), { forceNoRust: false });
-  assert.deepEqual(parseDevelopmentArguments([]), { forceNoRust: false });
-  assert.deepEqual(parseDevelopmentArguments(['--force-no-rust']), { forceNoRust: true });
+  assert.deepEqual(parseDevelopmentArguments(), { forceNoRust: false, electronArgs: [] });
+  assert.deepEqual(parseDevelopmentArguments([]), { forceNoRust: false, electronArgs: [] });
+  assert.deepEqual(parseDevelopmentArguments(['--force-no-rust']), { forceNoRust: true, electronArgs: [] });
+});
+
+test('development arguments pass XWayland options to Electron', () => {
+  assert.deepEqual(parseDevelopmentArguments(['--ozone-platform=x11']), {
+    forceNoRust: false,
+    electronArgs: ['--ozone-platform=x11'],
+  });
 });
 
 test('development arguments reject unsupported options', () => {
   assert.throws(() => parseDevelopmentArguments(['--skip-build']), /Unknown electron:dev option: --skip-build/);
+});
+
+test('startElectron places Electron arguments before the app entrypoint', async () => {
+  let invocation;
+  await startElectron('/tmp/capture-engine', {
+    root: '/tmp/beam-electron-dev',
+    env: { TEST_ENV: '1' },
+    electronArgs: ['--ozone-platform=x11'],
+    spawnImpl: (command, args, options) => {
+      invocation = { command, args, options };
+      return {
+        once(event, callback) {
+          if (event === 'exit') callback(0, null);
+          return this;
+        },
+      };
+    },
+  });
+
+  assert.equal(invocation.command, process.execPath);
+  assert.deepEqual(invocation.args, [require.resolve('electron/cli.js'), '--ozone-platform=x11', '.']);
+  assert.equal(invocation.options.env.BEAM_CAPTURE_ENGINE, '/tmp/capture-engine');
 });
 
 test('Cargo-present development builds are used directly', async () => {

@@ -4,6 +4,7 @@ const test = require('node:test');
 
 function createElectronFixture(savedBounds = null) {
   const windows = [];
+  const titles = [];
   const display = { workArea: { x: 0, y: 0, width: 1920, height: 1080 } };
   const preferenceState = { extras: savedBounds ? { teleprompterWindow: savedBounds } : {} };
   const patches = [];
@@ -65,6 +66,10 @@ function createElectronFixture(savedBounds = null) {
 
     setAlwaysOnTop() {}
 
+    setTitle(value) {
+      titles.push(value);
+    }
+
     show() {
       this.visible = true;
       this.emit('show');
@@ -115,6 +120,7 @@ function createElectronFixture(savedBounds = null) {
 
   return {
     windows,
+    titles,
     patches,
     preferencesStore,
     restore: () => {
@@ -144,6 +150,9 @@ test('persists teleprompter bounds after native move and resize events', () => {
     teleprompter.showInactive();
     const window = fixture.windows[0];
     assert.equal(window.options.icon, appIconPath);
+    assert.equal(window.options.title, 'Beam Teleprompter');
+    window.contentListeners.get('did-finish-load')();
+    assert.deepEqual(fixture.titles, ['Beam Teleprompter']);
     window.setBounds({ x: 355, y: 277, width: 800, height: 500 });
     window.emit('move');
     window.emit('resize');

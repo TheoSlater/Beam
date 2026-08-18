@@ -139,6 +139,7 @@ function createCameraOverlayWindow({
       transparent: platform !== 'linux',
       backgroundColor: platform === 'linux' ? '#000000' : '#00000000',
       alwaysOnTop: true,
+      title: 'Beam Camera Overlay',
       skipTaskbar: true,
       resizable: true,
       // Wayland's compositor-provided resize boundary for frameless windows is
@@ -167,6 +168,7 @@ function createCameraOverlayWindow({
       stopHoverTracking();
     });
     window.webContents.once('did-finish-load', () => {
+      window?.setTitle('Beam Camera Overlay');
       if (currentState) window?.webContents.send('camera-overlay:state', currentState);
     });
     load(window, { cameraOverlay: '1' });

@@ -31,6 +31,7 @@
     "website:test": "npm run test --workspace @beam/website",
     "build": "node scripts/native/artifacts.cjs build && vite build",
     "electron:dev": "node scripts/dev/electron.cjs",
+    "electron:dev:xwayland": "node scripts/dev/electron.cjs --ozone-platform=x11",
     "electron:dev:no-rust": "node scripts/dev/electron.cjs --force-no-rust",
     "electron:build": "npm run build && electron-builder --publish never"
   },

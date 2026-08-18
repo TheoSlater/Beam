@@ -16,6 +16,7 @@ test('preloads the countdown renderer before the first value is shown', () => {
     isDestroyed: () => destroyed,
     setIgnoreMouseEvents: (value) => calls.push(['mouse', value]),
     setPosition: (...args) => calls.push(['position', ...args]),
+    setTitle: (value) => calls.push(['title', value]),
     showInactive: () => calls.push(['show']),
     moveTop: () => calls.push(['top']),
     hide: () => calls.push(['hide']),
@@ -48,11 +49,16 @@ test('preloads the countdown renderer before the first value is shown', () => {
 
     const constructor = calls.find((call) => call[0] === 'constructor');
     assert.equal(constructor[1].show, false);
+    assert.equal(constructor[1].title, 'Beam Countdown');
     assert.ok(calls.some((call) => call[0] === 'loadURL'));
 
     overlay.show(3);
     assert.equal(calls.filter((call) => call[0] === 'show').length, 0);
     finishLoad();
+    assert.deepEqual(
+      calls.find((call) => call[0] === 'title'),
+      ['title', 'Beam Countdown'],
+    );
     assert.ok(calls.some((call) => call[0] === 'send' && call[1] === 'countdown:state' && call[2] === 3));
     assert.equal(calls.filter((call) => call[0] === 'show').length, 1);
 

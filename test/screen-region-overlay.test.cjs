@@ -12,6 +12,7 @@ test('cleans a failed region selection so a later selection can complete', async
     on: (event, listener) => listeners.set(event, listener),
     isDestroyed: () => destroyed,
     setContentProtection: (value) => calls.push(['contentProtection', value]),
+    setTitle: (value) => calls.push(['title', value]),
     setBounds: (bounds) => calls.push(['bounds', bounds]),
     setIgnoreMouseEvents: (value) => calls.push(['mouse', value]),
     show: () => calls.push(['show']),
@@ -26,9 +27,11 @@ test('cleans a failed region selection so a later selection can complete', async
     loadURL: () => undefined,
     loadFile: () => undefined,
   };
+  let constructorOptions;
   const electron = {
     BrowserWindow: class {
-      constructor() {
+      constructor(options) {
+        constructorOptions = options;
         return window;
       }
     },
@@ -45,6 +48,12 @@ test('cleans a failed region selection so a later selection can complete', async
     assert.throws(
       () => overlay.select({ bounds: { x: 0, y: 0, width: 0, height: 1080 }, region: null }),
       /Screen overlay size is invalid/,
+    );
+    assert.equal(constructorOptions.title, 'Beam Screen Region');
+    listeners.get('ready-to-show')();
+    assert.deepEqual(
+      calls.find((call) => call[0] === 'title'),
+      ['title', 'Beam Screen Region'],
     );
     assert.ok(calls.some((call) => call[0] === 'hide'));
 

@@ -178,6 +178,7 @@ function createWindow(preferencesStore, appIconPath) {
     frame: false,
     transparent: true,
     alwaysOnTop: true,
+    title: 'Beam Overlay',
     icon: appIconPath,
     resizable: true,
     maximizable: true,
@@ -201,7 +202,10 @@ function createWindow(preferencesStore, appIconPath) {
   });
   win.webContents.once('did-start-loading', () => logStartup('Renderer navigation started.'));
   win.webContents.once('dom-ready', () => logStartup('Renderer DOM is ready.'));
-  win.webContents.once('did-finish-load', () => logStartup('Renderer loading finished.'));
+  win.webContents.once('did-finish-load', () => {
+    win.setTitle('Beam Overlay');
+    logStartup('Renderer loading finished.');
+  });
   if (shouldAutoOpenDevTools({ isPackaged: app.isPackaged })) {
     win.webContents.once('did-finish-load', () => win.webContents.openDevTools({ mode: 'detach' }));
   }
